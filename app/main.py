@@ -319,7 +319,6 @@ class LibraryManager:
                 print("\nКнига успешно добавлена.")
                 break
 
-
     def handle_delete_book(self) -> None:
         """Обработка команды удаления книги."""
         while True:
@@ -339,7 +338,6 @@ class LibraryManager:
                 self._update_data(self.library.books_data)
                 print("\nКнига успешно удалена.")
                 break
-
 
     def handle_change_status(self) -> None:
         """Обработка команды изменения статуса книги."""
