@@ -139,9 +139,13 @@ class Library:
             with open("app/library.json", encoding="utf-8") as books_in_library:
                 self._books_data = json.load(books_in_library)
         
-        except (FileNotFoundError, json.JSONDecodeError) as e:
+        except json.JSONDecodeError as e:
             print(f"Ошибка загрузки данных: {e}")
             self._books_data = []
+
+        except FileNotFoundError: # создаем новый файл в случае, если библиотека еще не была создана
+            with open("app/library.json", "w", encoding="utf-8") as books_in_library:
+                json.dump([], books_in_library)
 
     @property
     def books_data(self) -> List[Dict]:
@@ -203,7 +207,10 @@ class LibraryManager:
         Метод для добавления новой книги в библиотеку.
         """
         try:
-            last_added_book_id = self.library.books_data[-1].get("id")
+            if self.library.books_data:
+                last_added_book_id = self.library.books_data[-1].get("id")
+            else:
+                last_added_book_id = 0 # на случай, если в библиотеке еще нет добавленных книг
             new_book = Book(last_added_book_id, title, author, year)
         except ValueError:
             raise
@@ -389,16 +396,17 @@ class LibraryManager:
 
             
             for option in MenuOptions:
-                
                 print(f"{option.value[0]}. {option.value[1]}")
             
             choice = input("Введите номер команды: ").strip()
 
-            try:
-                selected_option = MenuOptions(choice)
-            except ValueError:
-                print("\nНекорректный ввод, попробуйте снова.")
-                continue
+            selected_option = None
+            for option in MenuOptions:
+                if option.value[0] == choice:  # Сравниваем строковое значение с первым элементом кортежа
+                    selected_option = option
+                    break
+            if selected_option is None:
+                raise ValueError("\nНекорректный ввод, попробуйте снова.")
             
             match selected_option:
                 case MenuOptions.ADD_BOOK:
